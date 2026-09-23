@@ -1,0 +1,139 @@
+===============================================================================
+                       DIAGRAMA UML TEXTUAL DO SISTEMA
+===============================================================================
+
+-------------------------------------------------------------------------------
+1. CLASSES DO DOMÍNIO
+-------------------------------------------------------------------------------
+
+[Classe Base] Produto
+  - sku: str
+  - nome: str
+  - categoria: str
+  - _preco_unitario: float (> 0)
+  - _estoque: int (>= 0)
+  - ativo: bool
+  + preco_unitario: float (@property)
+  + estoque: int (@property)
+  + atualizar_estoque(quantidade: int) -> None
+  + __str__() / __repr__() -> str
+  + __eq__(other: object) -> bool
+  + __lt__(other: Produto) -> bool
+
+[Subclasse] ProdutoDigital (Herda de Produto)
+  - tamanho_mb: float
+
+[Subclasse] ProdutoFisico (Herda de Produto)
+  - peso_kg: float
+
+
+[Classe] Endereco
+  - logradouro: str
+  - numero: str
+  - complemento: str
+  - bairro: str
+  - cep: str
+  - cidade: str
+  - uf: str
+
+
+[Classe] Cliente
+  - id: str
+  - nome: str
+  - _email: str
+  - _cpf: str
+  - enderecos: List[Endereco]
+  + email: str (@property)
+  + cpf: str (@property)
+  + adicionar_endereco(endereco: Endereco) -> None
+  + __eq__(other: object) -> bool
+
+
+[Classe] ItemCarrinho
+  - produto: Produto
+  - _quantidade: int (>= 1)
+  + subtotal() -> float
+
+
+[Classe] Carrinho
+  - itens: List[ItemCarrinho]
+  + adicionar_item(produto: Produto, quantidade: int) -> None
+  + remover_item(sku: str) -> None
+  + alterar_quantidade(sku: str, nova_quantidade: int) -> None
+  + calcular_subtotal() -> float
+  + __len__() -> int
+
+
+[Classe] Cupom
+  - codigo: str
+  - tipo: str
+  - valor_margem: float
+  - data_validade: datetime
+  - uso_maximo: int
+  - usagem_atual: int
+  - categorias_elegiveis: List[str]
+  + validar_cupom() -> bool
+  + calcular_desconto(subtotal: float) -> float
+
+
+[Classe] Frete
+  - cep_destino: str
+  - uf_destino: str
+  - valor: float
+  - prazo_dias_uteis: int
+  + calcular_frete(uf: str, cep: str, itens: List) -> float
+
+
+[Classe] ItemPedido
+  - sku: str
+  - quantidade: int
+  - preco_unitario: float
+
+
+[Classe] Pagamento
+  - data: datetime
+  - forma: str
+  - valor: float
+
+
+[Classe] Pedido
+  - id: str
+  - cliente: Cliente
+  - endereco_entrega: Endereco
+  - itens: List[ItemPedido]
+  - valor_frete: float
+  - valor_desconto: float
+  - status: str
+  - codigo_rastreio: Optional[str]
+  - data_criacao: datetime
+  - data_entrega: Optional[datetime]
+  - pagamentos: List[Pagamento]
+  + fechar_pedido_com_carrinho(carrinho, cupom, frete)
+  + calcular_total_pedido() -> float
+  + registrar_pagamento(pagamento) -> bool
+  + alterar_status(novo_status) -> None
+  + cancelar_pedido(janela_horas) -> bool
+  + gerar_resumo_nota() -> str
+
+-------------------------------------------------------------------------------
+2. RELACIONAMENTOS
+-------------------------------------------------------------------------------
+
+* HERANÇA:
+  - ProdutoDigital --(herda de)--> Produto
+  - ProdutoFisico  --(herda de)--> Produto
+
+* COMPOSIÇÃO:
+  - Cliente "1"  *-- "1..*" Endereco
+  - Carrinho "1" *-- "*"    ItemCarrinho
+  - Pedido "1"   *-- "1..*" ItemPedido
+  - Pedido "1"   *-- "*"    Pagamento
+
+* AGREGAÇÃO:
+  - ItemCarrinho "*" o-- "1" Produto
+  - Pedido "*"       o-- "1" Cliente
+  - Pedido "*"       o-- "1" Endereco
+
+* ASSOCIAÇÃO:
+  - Pedido ..> Cupom
+  - Pedido ..> Frete
