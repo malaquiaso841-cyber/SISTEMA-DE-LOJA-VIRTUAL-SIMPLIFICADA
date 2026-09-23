@@ -1,25 +1,22 @@
 # Sistema de Loja Virtual Simplificada
 
+Projeto acadêmico em Python para aplicar conceitos de Programação Orientada a Objetos (POO) na modelagem das operações essenciais de uma loja virtual.
+
 ## Informações acadêmicas
 
-- **Instituição:** Universidade Federal do Cariri (UFCA)
-- **Curso:** Engenharia de Software
-- **Disciplina:** POO - Programação Orientada a Objetos
-- **Professor:** Jayr Alencar Pereira
-- **Integrante:**
-  - Malaquias de Oliveira do Nascimento
+| Campo | Informação |
+|---|---|
+| Instituição | Universidade Federal do Cariri (UFCA) |
+| Curso | Engenharia de Software |
+| Disciplina | POO — Programação Orientada a Objetos |
+| Professor | Jayr Alencar Pereira |
+| Integrante | Malaquias de Oliveira do Nascimento |
 
----
+## Sobre o projeto
 
-## Descrição do projeto
+O sistema será desenvolvido para uso por interface de linha de comando (CLI), com possibilidade de uma API mínima em Python. O objetivo é simular o fluxo de compra de uma loja virtual, desde o cadastro de produtos e clientes até o pagamento, a expedição e a entrega dos pedidos.
 
-Este projeto consiste no desenvolvimento de um **Sistema de Loja Virtual Simplificada** via interface de linha de comando (CLI) ou API mínima em Python, focado no domínio de e-commerce e na aplicação rigorosa dos conceitos de Programação Orientada a Objetos (POO).
-
-O sistema simula todo o fluxo de compras de uma loja virtual: cadastro de produtos e clientes, gestão do carrinho, cálculo de fretes, aplicação de cupons de desconto, fechamento de pedidos, registro de pagamentos, controle de estoque e fluxo de expedição.
-
-A persistência de dados é feita de forma simples (JSON ou SQLite sem ORM) e o modelo orientado a objetos enfatiza herança, composição, encapsulamento com validações (`@property`) e uso de métodos especiais em Python.
-
----
+A implementação dará ênfase à orientação a objetos: encapsulamento e validações com `@property`, herança, composição, métodos especiais e regras de negócio. Os dados poderão ser persistidos em JSON ou SQLite, sem uso de ORM.
 
 ## Objetivos
 
@@ -29,61 +26,74 @@ Desenvolver um sistema orientado a objetos em Python que simule as operações e
 
 ### Objetivos específicos
 
-- Aplicar conceitos de **encapsulamento** e validações com propriedades (`@property`);
-- Utilizar **herança e composição** na modelagem das classes (ex.: produtos físicos/digitais, itens do pedido e carrinho);
-- Implementar **métodos especiais** (`__str__`, `__repr__`, `__eq__`, `__len__`, `__lt__`);
-- Construir regras de negócio para cálculo de frete, aplicação de cupons, pagamentos e estorno de estoque;
-- Implementar controle de estados do pedido (`CRIADO`, `PAGO`, `ENVIADO`, `ENTREGUE`, `CANCELADO`);
-- Desenvolver um módulo simples de persistência em JSON/SQLite acompanhado de rotina de *seed*;
-- Construir uma suíte de testes automatizados utilizando `pytest`.
+- Aplicar encapsulamento e validações com propriedades (`@property`);
+- Usar herança e composição na modelagem das classes, como produtos físicos e digitais, itens do pedido e carrinho;
+- Implementar métodos especiais, incluindo `__str__`, `__repr__`, `__eq__`, `__len__` e `__lt__`;
+- Criar regras de negócio para frete, cupons, pagamentos e estorno de estoque;
+- Controlar os estados dos pedidos: `CRIADO`, `PAGO`, `ENVIADO`, `ENTREGUE` e `CANCELADO`;
+- Implementar persistência simples em JSON ou SQLite e uma rotina de carga inicial (*seed*);
+- Criar testes automatizados com `pytest`.
 
----
+## Funcionalidades previstas
 
-## Funcionalidades
+### Produtos e clientes
 
-O sistema possui as seguintes funcionalidades:
+- Cadastro, consulta, atualização e remoção de produtos (CRUD);
+- Validação de SKU único, preço unitário maior que zero e estoque não negativo;
+- Ativação e inativação de produtos;
+- Cadastro e manutenção de clientes;
+- Validação de dados e prevenção de duplicidade de e-mail ou CPF.
 
-- **Produtos (CRUD):** cadastro, validação de SKU único, preço unitário (> 0), estoque e controle ativo/inativo;
-- **Clientes (CRUD):** cadastro de clientes com validação e controle para impedir duplicidade de e-mail ou CPF;
-- **Carrinho de Compras:** adição, remoção e alteração de quantidade de itens, validação de disponibilidade de estoque e cálculo de subtotal;
-- **Cupons de Desconto:** validação por código, tipo (valor fixo ou percentual), validade, limite de usos e categorias elegíveis;
-- **Cálculo de Frete:** cálculo parametrizado por UF/CEP e definição de prazos de entrega (produtos digitais isentos);
-- **Gestão de Pedidos:** fechamento a partir do carrinho, geração de resumo/nota textual e máquinas de estado;
-- **Pagamentos:** registro de transações (PIX, Crédito, Débito, Boleto) e transição para `PAGO` ao quitar o total;
-- **Expedição:** geração de código de rastreamento fictício (`ENVIADO`) e registro de data de entrega (`ENTREGUE`);
-- **Cancelamento e Estorno:** cancelamento dentro da janela permitida e repotencialização/estorno automático do estoque;
-- **Relatórios Analíticos:** faturamento por período, Top N produtos mais vendidos, ticket médio e vendas por categoria/UF.
+### Carrinho, cupons e frete
 
----
+- Adição, remoção e alteração da quantidade de itens no carrinho;
+- Verificação de disponibilidade em estoque e cálculo do subtotal;
+- Cupons de valor fixo ou percentual, com código, validade, limite de usos e categorias elegíveis;
+- Cálculo de frete parametrizado por UF ou CEP, com prazo de entrega;
+- Isenção de frete para produtos digitais.
 
-## Tecnologias utilizadas
+### Pedidos, pagamentos e expedição
 
-- **Python 3.10+:** linguagem principal para implementação das classes e regras do sistema;
-- **Pytest:** execução da suíte de testes unitários e de integração;
-- **JSON / SQLite3:** armazenamento e persistência simples dos dados;
-- **Markdown:** produção da documentação técnica;
-- **Git e GitHub:** controle de versão e armazenamento do repositório.
+- Fechamento do pedido a partir do carrinho e geração de resumo textual;
+- Controle dos estados do pedido;
+- Registro de pagamentos por PIX, cartão de crédito, cartão de débito ou boleto;
+- Transição para `PAGO` após a quitação do valor total;
+- Geração de código fictício de rastreamento e registro da entrega.
 
----
+### Cancelamentos e relatórios
+
+- Cancelamento dentro da janela permitida e estorno automático do estoque;
+- Relatórios de faturamento por período, produtos mais vendidos, ticket médio e vendas por categoria ou UF.
+
+## Tecnologias
+
+- **Python 3.10 ou superior:** linguagem de implementação;
+- **pytest:** testes unitários e de integração;
+- **JSON ou SQLite3:** persistência simples;
+- **Markdown:** documentação técnica;
+- **Git e GitHub:** controle de versão e hospedagem do repositório.
 
 ## Arquitetura
 
-O sistema é estruturado em três camadas principais:
+O projeto será dividido em três camadas:
 
-1. **Interface / CLI:** comandos de terminal (`main.py`) para interação do usuário com os serviços;
-2. **Camada de Serviços e Persistência:** regras de negócio complexas, relatórios e controle de leitura/escrita em dados (`dados.py`);
-3. **Modelos de Domínio (POO):** classes que representam os conceitos e entidades do e-commerce (`models/`).
+1. **Interface (CLI):** comandos de terminal disponibilizados em `main.py`;
+2. **Serviços e persistência:** regras de negócio, relatórios e leitura e escrita de dados;
+3. **Modelos de domínio:** classes que representam as entidades do e-commerce, organizadas em `models/`.
 
-[Interface CLI (main.py)] ---> [Serviços & Regras de Negócio] <---> [Modelos OO (models/)]
-                                         ^
-                                         |
-                                         v
-                             [Persistência (dados.py / JSON)]
+```text
+Interface CLI (main.py)
+        |
+        v
+Serviços e regras de negócio <--> Modelos OO (models/)
+        |
+        v
+Persistência (services/dados.py / JSON ou SQLite)
+```
 
----
+## Estrutura de diretórios
 
-## Estrutura do projeto
-
+```text
 SISTEMA-DE-LOJA-VIRTUAL-SIMPLIFICADA/
 ├── docs/
 │   ├── estrutura_classes.md
@@ -111,92 +121,82 @@ SISTEMA-DE-LOJA-VIRTUAL-SIMPLIFICADA/
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+```
 
----
+## Documentação da modelagem
 
-## Documentação e Modelagem das Classes
+A descrição detalhada das classes, seus atributos, métodos e relacionamentos será mantida na pasta `docs/`:
 
-A arquitetura detalhada do modelo orientado a objetos, atributos, métodos e diagramas estão organizados em arquivos separados na pasta de documentação:
+- [`docs/estrutura_classes.md`](docs/estrutura_classes.md): responsabilidades, propriedades e métodos das entidades;
+- [`docs/uml.txt`](docs/uml.txt): diagrama textual UML, com herança, composição, agregação e assinaturas de métodos.
 
-- 📑 **[Estrutura Detalhada das Classes](docs/estrutura_classes.md):** detalhamento de atributos, propriedades, métodos especiais e responsabilidades de cada entidade.
-- 📐 **[Diagrama UML Textual](docs/uml.txt):** mapeamento completo das relações de herança, composição, agregação e assinaturas dos métodos.
-
----
-
-
-## Requisitos
-
-Antes de executar o projeto, é necessário ter instalado na máquina:
+## Requisitos para execução
 
 - Python 3.10 ou superior;
-- Gerenciador de pacotes `pip`.
+- `pip`.
 
-Para verificar as instalações, execute no terminal:
+Verifique as instalações com:
 
+```bash
 python --version
 pip --version
-
----
+```
 
 ## Instalação
 
-### 1. Clonar o repositório
+Clone o repositório e entre na pasta do projeto:
 
+```bash
 git clone https://github.com/malaquiaso841-cyber/SISTEMA-DE-LOJA-VIRTUAL-SIMPLIFICADA.git
-
-Entre na pasta do projeto:
-
 cd SISTEMA-DE-LOJA-VIRTUAL-SIMPLIFICADA
+```
 
-### 2. Configurar o ambiente virtual e dependências
+Crie e ative um ambiente virtual e instale as dependências:
 
+```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+```
 
----
+## Exemplos de uso
 
-## Execução
+Os exemplos abaixo ilustram os comandos previstos para a CLI:
 
-A aplicação é executada via linha de comando utilizando o arquivo `main.py`.
-
-### Exemplos de comandos CLI
-
-# Cadastrar um novo produto
+```bash
+# Cadastrar um produto
 python main.py cadastrar-produto --sku "PROD01" --nome "Notebook" --preco 3500.00 --estoque 10
 
 # Cadastrar um cliente
 python main.py cadastrar-cliente --nome "Maria Silva" --email "maria@email.com" --cpf "12345678900"
 
-# Operações do carrinho e pedido
+# Adicionar itens ao carrinho, fechar e pagar um pedido
 python main.py add-carrinho --sku "PROD01" --qtd 2
 python main.py fechar-pedido --cliente-id 1
 python main.py pagar --pedido-id 1 --forma "PIX"
 
-# Relatórios
+# Consultar relatórios
 python main.py relatorio faturamento
 python main.py relatorio top
-
----
+```
 
 ## Testes
 
-Os testes unitários e de integração garantem a integridade das regras de negócio e validações de POO.
+Com as dependências instaladas, execute a suíte de testes com:
 
-Para rodar toda a suíte de testes com o `pytest`, execute:
-
+```bash
 pytest
+```
 
-Os principais cenários testados incluem:
-- Encapsulamento de preço (> 0) e estoque (≥ 0);
-- Validação de formato de e-mail e CPF único;
-- Tentativa de inclusão no carrinho com estoque insuficiente;
+Os testes devem cobrir, entre outros cenários:
+
+- Validação de preço maior que zero e estoque não negativo;
+- Formato de e-mail e unicidade de CPF;
+- Tentativa de adicionar ao carrinho mais itens do que há em estoque;
 - Aplicação e rejeição de cupons expirados ou inválidos;
-- Cálculo correto de frete e isenção para produtos digitais;
-- Mudanças de estado do pedido e estorno de estoque em caso de cancelamento.
+- Cálculo de frete e isenção para produtos digitais;
+- Transições de estado do pedido e estorno de estoque após cancelamento.
 
----
+## Licença e finalidade
 
-## Licença
-
-Este projeto foi desenvolvido para fins estritamente acadêmicos para a disciplina de Programação Orientada a Objetos da Universidade Federal do Cariri (UFCA).
+Este projeto tem finalidade estritamente acadêmica e foi proposto para a disciplina de Programação Orientada a Objetos da Universidade Federal do Cariri (UFCA).
