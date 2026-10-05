@@ -5,7 +5,7 @@ class ItemCarrinho:
         self.produto = produto
         self.quantidade = quantidade
         # Salva o preço no momento em que o item é adicionado
-        self._preco_unitario = produto.preco
+        self._preco_unitario = produto.preco_unitario
 
     @property
     def produto(self) -> Produto:
@@ -45,6 +45,13 @@ class ItemCarrinho:
             "preco_unitario": self.preco_unitario,
             "subtotal": self.subtotal
         }
+
+    @classmethod
+    def from_dict(cls, dados: dict) -> "ItemCarrinho":
+        produto = Produto.from_dict(dados["produto"])
+        item = cls(produto=produto, quantidade=dados["quantidade"])
+        item._preco_unitario = dados.get("preco_unitario", produto.preco_unitario)
+        return item
 
     # MÉTODOS ESPECIAIS
 

@@ -116,6 +116,17 @@ class Produto:
             "ativo": self.ativo
         }
 
+    @classmethod
+    def from_dict(cls, dados: dict) -> "Produto":
+        return cls(
+            sku=dados["sku"],
+            nome=dados["nome"],
+            categoria=dados["categoria"],
+            preco_unitario=dados["preco_unitario"],
+            estoque=dados["estoque"],
+            ativo=dados.get("ativo", True)
+        )
+
     def __str__(self) -> str:
         status = "Ativo" if self.ativo else "Inativo"
         return (

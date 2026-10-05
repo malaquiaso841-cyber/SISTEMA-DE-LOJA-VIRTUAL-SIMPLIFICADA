@@ -92,6 +92,18 @@ class Endereco:
             "complemento": self.complemento
         }
 
+    @classmethod
+    def from_dict(cls, dados: dict) -> "Endereco":
+        return cls(
+            logradouro=dados["logradouro"],
+            numero=dados["numero"],
+            bairro=dados["bairro"],
+            cidade=dados["cidade"],
+            uf=dados["uf"],
+            cep=dados["cep"],
+            complemento=dados.get("complemento", "")
+        )
+
     # MÉTODOS ESPECIAIS 
 
     def __str__(self):

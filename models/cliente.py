@@ -1,4 +1,5 @@
 from models.endereco import Endereco
+import re
 
 class Cliente:
     def __init__(self, id_cliente, nome, email, cpf, enderecos=None):
@@ -28,8 +29,11 @@ class Cliente:
         nome_limpo = str(valor).strip() if valor is not None else ""
         if not nome_limpo:
             raise ValueError("O nome não pode ser vazio")
-        if not nome_limpo.replace(" ", "").isalpha():
-            raise ValueError("O nome do cliente deve conter apenas letras.")
+        
+        # Permite letras (incluindo acentuadas e cedilha) e espaços
+        if not re.match(r"^[A-Za-zÀ-ÖØ-öø-ÿ\s]+$", nome_limpo):
+            raise ValueError("O nome do cliente deve conter apenas letras e espaços.")
+            
         self._nome = nome_limpo
 
     @property
@@ -103,6 +107,17 @@ class Cliente:
             "cpf": self.cpf,
             "enderecos": [end.to_dict() for end in self.enderecos]
         }
+
+    @classmethod
+    def from_dict(cls, dados: dict) -> "Cliente":
+        enderecos = [Endereco.from_dict(e) for e in dados.get("enderecos", [])]
+        return cls(
+            id_cliente=dados["id_cliente"],
+            nome=dados["nome"],
+            email=dados["email"],
+            cpf=dados["cpf"],
+            enderecos=enderecos
+        )
 
     # MÉTODOS ESPECIAIS
 
