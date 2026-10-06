@@ -71,14 +71,14 @@ class Produto:
         return self._estoque
 
     @estoque.setter
-    def estoque(self, valor):
-        try:
-            valor_int = int(valor)
-        except (TypeError, ValueError):
-             raise ValueError("O valor do estoque deve ser um número inteiro.")
-        if valor_int < 0:
-             raise ValueError("O valor do estoque não pode ser negativo")
-        self._estoque = valor_int
+    def estoque(self, valor: int) -> None:
+        if isinstance(valor, bool) or not isinstance(valor, int):
+            raise TypeError("O estoque deve ser um número inteiro.")
+
+        if valor < 0:
+            raise ValueError("O estoque não pode ser negativo.")
+
+        self._estoque = valor
 
     @property
     def ativo(self):
@@ -94,18 +94,19 @@ class Produto:
     # Metodo de atualização do estoque
 
     def atualizar_estoque(self, quantidade: int) -> None:
-        try:
-            qtd_int = int(quantidade)
-        except (TypeError, ValueError):
-            raise ValueError("A quantidade para atualização do estoque deve ser um número inteiro.")
-        novo_estoque = self.estoque + qtd_int
+        if isinstance(quantidade, bool) or not isinstance(quantidade, int):
+            raise TypeError("A quantidade para atualizar o estoque deve ser inteira.")
+
+        novo_estoque = self.estoque + quantidade
+
         if novo_estoque < 0:
             raise ValueError(
-            f"Estoque insuficiente para o produto '{self.nome}'. "
-            f"Disponível: {self.estoque}, Solicitado para baixa: {abs(qtd_int)}."
-        )
-        self.estoque = novo_estoque
+                f"Estoque insuficiente para '{self.nome}'. "
+                f"Disponível: {self.estoque}, solicitado: {abs(quantidade)}."
+            )
 
+        self.estoque = novo_estoque
+        
     def to_dict(self):
         return{
             "sku": self.sku,

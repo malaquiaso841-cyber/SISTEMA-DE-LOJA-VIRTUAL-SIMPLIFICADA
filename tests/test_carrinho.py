@@ -70,20 +70,18 @@ def test_adicionar_item_novo(carrinho, produto_mouse):
     carrinho.adicionar_item(produto_mouse, quantidade=2)
 
     assert carrinho.esta_vazio is False
-    assert len(carrinho) == 1
+    assert len(carrinho) == 2
     assert carrinho.quantidade_total_itens == 2
     assert carrinho.subtotal == 100.00
-
-
+    
 def test_adicionar_produto_duplicado_acumula_quantidade(carrinho, produto_mouse):
     """Valida se adicionar o mesmo SKU apenas incrementa a quantidade."""
     carrinho.adicionar_item(produto_mouse, quantidade=2)
     carrinho.adicionar_item(produto_mouse, quantidade=3)
 
-    assert len(carrinho) == 1
+    assert len(carrinho) == 5
     assert carrinho.quantidade_total_itens == 5
     assert carrinho.subtotal == 250.00
-
 
 def test_remover_item_por_objeto_e_por_sku(carrinho, produto_mouse, produto_teclado):
     """Valida remoção por instância de Produto e por string SKU."""
@@ -139,15 +137,15 @@ def test_limpar_carrinho(carrinho, produto_mouse, produto_teclado):
 
 
 def test_serializacao_json(carrinho, produto_mouse):
-    """Valida conversão para dicionário (to_dict) e reconstrução (from_dict)."""
+    """Valida conversão para dicionário e reconstrução."""
     carrinho.adicionar_item(produto_mouse, quantidade=2)
 
     dados_dict = carrinho.to_dict()
     assert isinstance(dados_dict, dict)
     assert dados_dict["cliente"]["email"] == "maria@email.com"
-    assert len(dados_dict["itens"]) == 1
+    assert len(dados_dict["itens"]) == 1  # um tipo de produto
 
     carrinho_reconstruido = Carrinho.from_dict(dados_dict)
     assert carrinho_reconstruido.cliente.nome == "Maria Silva"
-    assert len(carrinho_reconstruido) == 1
+    assert len(carrinho_reconstruido) == 2  # duas unidades
     assert carrinho_reconstruido.subtotal == 100.00

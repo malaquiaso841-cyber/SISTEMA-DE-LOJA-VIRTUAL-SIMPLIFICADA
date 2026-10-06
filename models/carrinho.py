@@ -28,15 +28,17 @@ class Carrinho:
 
     # Métodos de Manipulação de Itens
 
-    def adicionar_item(self, produto: Produto, quantidade: int = 1):
+    def adicionar_item(self, produto: Produto, quantidade: int = 1) -> None:
         if not isinstance(produto, Produto):
-            raise TypeError("O produto fornecido deve ser uma instância válida da classe Produto.")
-        
-        item_existente = None
-        for item in self._itens:
-            if item.produto.sku == produto.sku:
-                item_existente = item
-                break
+            raise TypeError("O produto deve ser uma instância da classe Produto.")
+
+        if not produto.ativo:
+            raise ValueError(f"O produto '{produto.nome}' está inativo.")
+
+        item_existente = next(
+            (item for item in self._itens if item.produto.sku == produto.sku),
+            None
+        )
 
         if item_existente:
             item_existente.quantidade += quantidade
@@ -116,9 +118,8 @@ class Carrinho:
     # Métodos Especiais (Dunder Methods)
 
     def __len__(self) -> int:
-        """Retorna a quantidade de tipos de produtos distintos no carrinho."""
-        return len(self._itens)
-
+        return self.quantidade_total_itens
+    
     def __iter__(self):
         """Permite iterar sobre os itens do carrinho em loops (ex: for item in carrinho:)."""
         return iter(self._itens)

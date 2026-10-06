@@ -22,11 +22,19 @@ class ItemCarrinho:
         return self._quantidade
 
     @quantidade.setter
-    def quantidade(self, valor):
-        if not isinstance(valor, int) or valor <= 0:
-            raise ValueError("A quantidade deve ser um número inteiro maior que zero.")
+    def quantidade(self, valor: int) -> None:
+        if isinstance(valor, bool) or not isinstance(valor, int):
+            raise TypeError("A quantidade deve ser um número inteiro.")
+
+        if valor < 1:
+            raise ValueError("A quantidade deve ser maior que zero.")
+
         if valor > self._produto.estoque:
-            raise ValueError(f"Quantidade solicitada ({valor}) é superior ao estoque disponível ({self._produto.estoque}).")
+            raise ValueError(
+                f"Quantidade solicitada ({valor}) é superior "
+                f"ao estoque disponível ({self._produto.estoque})."
+            )
+
         self._quantidade = valor
 
     @property
@@ -61,10 +69,10 @@ class ItemCarrinho:
                 f"qtd={self.quantidade}, subtotal=R${self.subtotal:.2f})"
             )
     
-    def __eq__(self, outro: object):
+    def __eq__(self, outro: object) -> bool:
         if not isinstance(outro, ItemCarrinho):
             return False
-        return self.produto.id == outro.produto.id
+        return self.produto.sku == outro.produto.sku
 
         
         
