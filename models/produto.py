@@ -129,6 +129,7 @@ class Produto:
         )
 
     def __str__(self) -> str:
+        """Retorna uma representação amigável do produto para exibição ao usuário final."""
         status = "Ativo" if self.ativo else "Inativo"
         return (
             f"{self.nome} (SKU: {self.sku}) - "
@@ -136,17 +137,20 @@ class Produto:
         )
 
     def __repr__(self) -> str:
+        """Retorna a representação técnica do objeto para depuração e logs do desenvolvedor."""
         return (
             f"Produto(sku={self.sku!r}, nome={self.nome!r}, categoria={self.categoria!r}, "
             f"preco_unitario={self.preco_unitario}, estoque={self.estoque}, ativo={self.ativo})"
         )
 
     def __eq__(self, outro: object) -> bool:
+        """Define a regra de igualdade: dois produtos são iguais se tiverem o mesmo SKU."""
         if not isinstance(outro, Produto):
             return False
         return self.sku == outro.sku
 
     def __lt__(self, outro: "Produto") -> bool:
+        """Permite ordenar produtos por preço do menor para o maior (ex: usando sorted())."""
         if not isinstance(outro, Produto):
             return NotImplemented
         return self.preco_unitario < outro.preco_unitario
