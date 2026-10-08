@@ -118,6 +118,7 @@ class Carrinho:
     # Métodos Especiais (Dunder Methods)
 
     def __len__(self) -> int:
+        """Retorna o número total de itens/unidades presentes no carrinho quando usado len(carrinho)."""
         return self.quantidade_total_itens
     
     def __iter__(self):
@@ -125,6 +126,7 @@ class Carrinho:
         return iter(self._itens)
 
     def __repr__(self) -> str:
+        """Retorna a representação técnica do carrinho para depuração, exibições em testes e logs."""
         return (
             f"Carrinho(cliente='{self.cliente.nome}', "
             f"itens={len(self._itens)}, total=R${self.total:.2f})"
