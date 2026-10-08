@@ -64,12 +64,14 @@ class ItemCarrinho:
     # MÉTODOS ESPECIAIS
 
     def __repr__(self):
+            """Retorna a representação técnica do item para facilidade de leitura durante a depuração e testes."""
             return (
                 f"ItemCarrinho(produto='{self.produto.nome}', "
                 f"qtd={self.quantidade}, subtotal=R${self.subtotal:.2f})"
             )
     
     def __eq__(self, outro: object) -> bool:
+        """Define que dois itens de carrinho são iguais se referenciarem um produto com o mesmo SKU."""
         if not isinstance(outro, ItemCarrinho):
             return False
         return self.produto.sku == outro.produto.sku
