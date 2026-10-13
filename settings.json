@@ -1,0 +1,18 @@
+{
+  "frete": {
+    "por_uf": {
+      "CE": {
+        "valor": 15.0,
+        "prazo_dias": 5
+      },
+      "SP": {
+        "valor": 25.0,
+        "prazo_dias": 8
+      }
+    },
+    "padrao": {
+      "valor": 30.0,
+      "prazo_dias": 12
+    }
+  }
+}
