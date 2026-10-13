@@ -1,11 +1,12 @@
 class Produto:
-    def __init__(self, sku, nome, categoria, preco_unitario, estoque=0, ativo = True ):
+    def __init__(self, sku, nome, categoria, preco_unitario, estoque=0, ativo = True, digital=False, ):
         self.sku = sku
         self.nome = nome
         self.categoria = categoria
         self.preco_unitario = preco_unitario
         self.estoque = estoque
         self.ativo = ativo
+        self.digital = digital
 
     @property
     def sku(self):
@@ -90,6 +91,16 @@ class Produto:
             raise ValueError("O status 'ativo' deve ser um valor booleano (True ou False).")
         self._ativo = valor
 
+    @property
+    def digital(self) -> bool:
+        return self._digital
+
+    @digital.setter
+    def digital(self, valor: bool) -> None:
+        if not isinstance(valor, bool):
+            raise TypeError("O campo digital deve ser True ou False")
+        self._digital = valor
+
 
     # Metodo de atualização do estoque
 
@@ -114,7 +125,9 @@ class Produto:
             "categoria": self.categoria,
             "preco_unitario": self.preco_unitario,
             "estoque": self.estoque,
-            "ativo": self.ativo
+            "ativo": self.ativo,
+            "digital": self.digital,
+
         }
 
     @classmethod
@@ -125,7 +138,8 @@ class Produto:
             categoria=dados["categoria"],
             preco_unitario=dados["preco_unitario"],
             estoque=dados["estoque"],
-            ativo=dados.get("ativo", True)
+            ativo=dados.get("ativo", True),
+            digital=dados.get("digital", False),
         )
 
     def __str__(self) -> str:
