@@ -1,10 +1,11 @@
 import math
 
 class ItemPedido:
-    def __init__(self, sku: str, quantidade: int, preco_unitario: float):
+    def __init__(self, sku: str, quantidade: int, preco_unitario: float, digital: bool = False,):
         self.sku = sku
         self.quantidade = quantidade
         self.preco_unitario = preco_unitario
+        self.digital = digital
     
     @property
     def sku(self) -> str:
@@ -64,18 +65,30 @@ class ItemPedido:
 
         self._preco_unitario = unitario
 
-
+    
     @property
     def subtotal(self) -> float:
         return self.quantidade * self.preco_unitario
-        
+
+    @property
+    def digital(self) -> bool:
+        return self._digital
+
+    @digital.setter
+    def digital(self, valor: bool) -> None:
+        if not isinstance(valor, bool):
+            raise TypeError("O campo digital deve ser True ou False")
+        self._digital = valor
+            
 
     def to_dict(self) -> dict:
         return {
             "sku": self.sku,
             "quantidade": self.quantidade,
             "preco_unitario": self.preco_unitario,
+            "digital": self.digital,
             "subtotal": self.subtotal,
+
         }
 
     @classmethod
@@ -84,7 +97,9 @@ class ItemPedido:
             sku=dados["sku"],
             quantidade=dados["quantidade"],
             preco_unitario=dados["preco_unitario"],
+            digital=dados.get("digital", False),
         )
+    
 
     def __repr__(self) -> str:
         return (
