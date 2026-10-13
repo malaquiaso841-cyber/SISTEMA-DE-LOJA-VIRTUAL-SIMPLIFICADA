@@ -8,6 +8,8 @@ from models.item_pedido import ItemPedido
 from models.carrinho import Carrinho
 from models.frete import Frete
 from models.cupom import Cupom
+from models.produto import Produto
+from uuid import uuid4
 
 class Pedido:
     STATUS_PERMITIDOS = {
@@ -38,6 +40,7 @@ class Pedido:
         self.codigo_rastreio: Optional[str] = None
         self.data_criacao = datetime.now()
         self.data_entrega: Optional[datetime] = None
+        self._estoque_baixado = False
         self.pagamentos: List["Pagamento"] = []
 
     @property
@@ -153,7 +156,11 @@ class Pedido:
 
         return subtotal + self.valor_frete - self.valor_desconto
 
-    def registrar_pagamento(self, pagamento: "Pagamento") -> bool:
+    def registrar_pagamento(
+    self,
+    pagamento: Pagamento,
+    produtos: List[Produto],
+) -> bool:
         if not isinstance(pagamento, Pagamento):
             raise TypeError(
                 "O pagamento deve ser uma instância da classe Pagamento"
@@ -162,13 +169,12 @@ class Pedido:
         if self.status != "aguardando_pagamento":
             return False
 
-        # Evita registrar novamente o mesmo objeto de pagamento.
         if pagamento in self.pagamentos:
             return False
 
         total_pedido = round(self.calcular_total_pedido(), 2)
         total_pago_atual = round(
-            sum(p.valor for p in self.pagamentos),
+            sum(item.valor for item in self.pagamentos),
             2,
         )
         novo_total_pago = round(total_pago_atual + pagamento.valor, 2)
@@ -176,10 +182,20 @@ class Pedido:
         if novo_total_pago > total_pedido:
             raise ValueError("O pagamento ultrapassa o total do pedido")
 
+        pagamento_quita_pedido = novo_total_pago >= total_pedido
+
+        if pagamento_quita_pedido:
+            if self._estoque_baixado:
+                raise ValueError("O estoque deste pedido já foi baixado")
+
+            # Se não houver estoque, o pagamento não é registrado.
+            self._baixar_estoque(produtos)
+            self._estoque_baixado = True
+
         self.pagamentos.append(pagamento)
 
-        if novo_total_pago >= total_pedido:
-            self.alterar_status("pago")
+        if pagamento_quita_pedido:
+            self.status = "pago"
 
         return True
 
@@ -192,6 +208,16 @@ class Pedido:
         if novo_status not in self.STATUS_PERMITIDOS:
             raise ValueError("Status inválido")
 
+        if novo_status == "pago":
+            raise ValueError(
+                "O pedido só pode ficar pago após registrar o pagamento completo"
+            )
+
+        if novo_status == "cancelado":
+            raise ValueError(
+                "Use cancelar_pedido() para cancelar e estornar o estoque"
+            )
+
         transicoes = self.TRANSICOES_PERMITIDAS[self.status]
 
         if novo_status not in transicoes:
@@ -199,21 +225,26 @@ class Pedido:
                 f"Não é permitido mudar de '{self.status}' para '{novo_status}'"
             )
 
+        if novo_status == "enviado":
+            self.codigo_rastreio = f"BR{uuid4().hex[:12].upper()}"
+
         self.status = novo_status
 
         if novo_status == "entregue":
             self.data_entrega = datetime.now()
 
-    def cancelar_pedido(self, janela_horas: int) -> bool:
+    def cancelar_pedido(
+    self,
+    janela_horas: int,
+    produtos: Optional[List[Produto]] = None,
+) -> bool:
         if isinstance(janela_horas, bool) or not isinstance(janela_horas, int):
             raise TypeError(
                 "A janela de cancelamento deve ser um número inteiro de horas"
             )
 
         if janela_horas < 0:
-            raise ValueError(
-                "A janela de cancelamento não pode ser negativa"
-            )
+            raise ValueError("A janela de cancelamento não pode ser negativa")
 
         horas_desde_a_criacao = (
             datetime.now() - self.data_criacao
@@ -222,10 +253,19 @@ class Pedido:
         if horas_desde_a_criacao > janela_horas:
             return False
 
-        if "cancelado" not in self.TRANSICOES_PERMITIDAS[self.status]:
+        if self.status not in {"aguardando_pagamento", "pago"}:
             return False
 
-        self.alterar_status("cancelado")
+        if self._estoque_baixado:
+            if produtos is None:
+                raise ValueError(
+                    "Informe a lista de produtos para estornar o estoque"
+                )
+
+            self._estornar_estoque(produtos)
+            self._estoque_baixado = False
+
+        self.status = "cancelado"
         return True
 
     def fechar_pedido_com_carrinho(
@@ -254,6 +294,7 @@ class Pedido:
                 sku=item.produto.sku,
                 quantidade=item.quantidade,
                 preco_unitario=item.preco_unitario,
+                digital=item.produto.digital,
             )
             for item in carrinho
         ]
@@ -293,7 +334,16 @@ class Pedido:
                 categoria=categoria_validada,
             )
 
-        valor_frete = frete.calcular_valor(self.endereco_entrega)
+        tem_produto_fisico = any(
+            not item.produto.digital
+            for item in carrinho
+        )
+
+        valor_frete = (
+            frete.calcular_valor(self.endereco_entrega)
+            if tem_produto_fisico
+            else 0.0
+        )
 
         self.itens = novos_itens
         self.valor_frete = valor_frete
@@ -304,12 +354,83 @@ class Pedido:
             cupom.registrar_uso(categoria_validada)
 
         carrinho.limpar()
-        
+
+    def _obter_produtos_do_pedido(
+        self,
+        produtos: List[Produto],
+    ) -> List[tuple[Produto, int]]:
+        if not isinstance(produtos, list):
+            raise TypeError("Os produtos devem ser informados em uma lista")
+
+        produtos_por_sku = {}
+
+        for produto in produtos:
+            if not isinstance(produto, Produto):
+                raise TypeError("A lista deve conter apenas objetos Produto")
+
+            if produto.sku in produtos_por_sku:
+                raise ValueError(f"Há mais de um produto com o SKU {produto.sku}")
+
+            produtos_por_sku[produto.sku] = produto
+
+        quantidades_por_sku = {}
+
+        for item in self.itens:
+            quantidades_por_sku[item.sku] = (
+                quantidades_por_sku.get(item.sku, 0) + item.quantidade
+            )
+
+        ajustes = []
+
+        for sku, quantidade in quantidades_por_sku.items():
+            produto = produtos_por_sku.get(sku)
+
+            if produto is None:
+                raise ValueError(f"Produto com SKU {sku} não foi encontrado")
+
+            ajustes.append((produto, quantidade))
+
+        return ajustes
+
+
+    def _baixar_estoque(self, produtos: List[Produto]) -> None:
+        ajustes = self._obter_produtos_do_pedido(produtos)
+
+        # Confere todos os produtos antes de alterar qualquer estoque.
+        for produto, quantidade in ajustes:
+            if produto.estoque < quantidade:
+                raise ValueError(
+                    f"Estoque insuficiente para {produto.nome}. "
+                    f"Disponível: {produto.estoque}; solicitado: {quantidade}."
+                )
+
+        for produto, quantidade in ajustes:
+            produto.atualizar_estoque(-quantidade)
+
+
+    def _estornar_estoque(self, produtos: List[Produto]) -> None:
+        ajustes = self._obter_produtos_do_pedido(produtos)
+
+        for produto, quantidade in ajustes:
+            produto.atualizar_estoque(quantidade)
+    
     def gerar_resumo_nota(self) -> str:
+        formas_pagamento = sorted({
+            pagamento.forma
+            for pagamento in self.pagamentos
+        })
+        texto_formas_pagamento = (
+            ", ".join(formas_pagamento)
+            if formas_pagamento
+            else "Nenhum pagamento registrado"
+        )
+
         linhas = [
             f"Pedido: {self.id}",
             f"Cliente: {self.cliente.nome}",
             f"Status: {self.status}",
+            f"Endereço de entrega: {self.endereco_entrega}",
+            f"Formas de pagamento: {texto_formas_pagamento}",
             "Itens:",
         ]
 
@@ -317,7 +438,8 @@ class Pedido:
             linhas.append(
                 f"- {item.sku} | "
                 f"Quantidade: {item.quantidade} | "
-                f"Preço unitário: R$ {item.preco_unitario:.2f}"
+                f"Preço unitário: R$ {item.preco_unitario:.2f} | "
+                f"Subtotal: R$ {item.subtotal:.2f}"
             )
 
         linhas.extend([
@@ -325,6 +447,9 @@ class Pedido:
             f"Desconto: R$ {self.valor_desconto:.2f}",
             f"Total: R$ {self.calcular_total_pedido():.2f}",
         ])
+
+        if self.codigo_rastreio:
+            linhas.append(f"Código de rastreio: {self.codigo_rastreio}")
 
         return "\n".join(linhas)
 
@@ -344,6 +469,7 @@ class Pedido:
                 if self.data_entrega is not None
                 else None
             ),
+            "estoque_baixado": self._estoque_baixado,
             "pagamentos": [
                 pagamento.to_dict()
                 for pagamento in self.pagamentos
@@ -371,6 +497,7 @@ class Pedido:
         pedido.valor_desconto = dados.get("valor_desconto", 0.0)
         pedido.status = dados.get("status", "aguardando_pagamento")
         pedido.codigo_rastreio = dados.get("codigo_rastreio")
+        pedido._estoque_baixado = dados.get("estoque_baixado", False)
 
         if dados.get("data_criacao"):
             pedido.data_criacao = datetime.fromisoformat(dados["data_criacao"])
