@@ -105,6 +105,8 @@ def gerar_relatorio_vendas() -> str:
             f"Status: {pedido.status} | "
             f"Total: R$ {pedido.calcular_total_pedido():.2f}"
         )
+        
+    return "\n".join(linhas)
 
 def gerar_relatorio_pedidos_por_status() -> str:
     pedidos = carregar_pedidos()
