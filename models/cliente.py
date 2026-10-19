@@ -44,10 +44,10 @@ class Cliente:
     def email(self, valor):
         email_limpo = str(valor).strip().lower() if valor is not None else ""
 
-        # 2. Valida se o e-mail não está vazio e se possui um formato válido com '@' e '.'
-        if not email_limpo or "@" not in email_limpo or "." not in email_limpo.split("@")[-1]:
+        padrao = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+        if not re.fullmatch(padrao, email_limpo):
             raise ValueError("O e-mail informado é inválido.")
-
+        
         self._email = email_limpo
 
     @property
