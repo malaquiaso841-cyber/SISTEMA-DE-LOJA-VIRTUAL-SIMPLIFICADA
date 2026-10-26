@@ -1,5 +1,6 @@
 from models.pagamento import Pagamento
 from models.pedido import Pedido
+from services.configuracao import carregar_configuracoes
 from services.dados import (
     carregar_pedidos,
     carregar_produtos,
@@ -47,8 +48,12 @@ def registrar_pagamento_pedido(
 
 def cancelar_pedido(
     pedido_id: str,
-    janela_horas: int,
+    janela_horas: int | None = None,
 ) -> bool:
+    if janela_horas is None:
+        configuracoes = carregar_configuracoes()
+        janela_horas = configuracoes["politica_cancelamento"]["janela_horas"]
+
     pedidos = carregar_pedidos()
     produtos = carregar_produtos()
     pedido = _buscar_pedido(pedido_id, pedidos)
