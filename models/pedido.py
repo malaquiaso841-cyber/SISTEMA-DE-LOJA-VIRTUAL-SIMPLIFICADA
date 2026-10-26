@@ -9,6 +9,7 @@ from models.carrinho import Carrinho
 from models.frete import Frete
 from models.cupom import Cupom
 from models.produto import Produto
+from services.configuracao import carregar_configuracoes
 from uuid import uuid4
 
 class Pedido:
@@ -233,41 +234,6 @@ class Pedido:
         if novo_status == "entregue":
             self.data_entrega = datetime.now()
 
-    def cancelar_pedido(
-    self,
-    janela_horas: int,
-    produtos: Optional[List[Produto]] = None,
-) -> bool:
-        if isinstance(janela_horas, bool) or not isinstance(janela_horas, int):
-            raise TypeError(
-                "A janela de cancelamento deve ser um número inteiro de horas"
-            )
-
-        if janela_horas < 0:
-            raise ValueError("A janela de cancelamento não pode ser negativa")
-
-        horas_desde_a_criacao = (
-            datetime.now() - self.data_criacao
-        ).total_seconds() / 3600
-
-        if horas_desde_a_criacao > janela_horas:
-            return False
-
-        if self.status not in {"aguardando_pagamento", "pago"}:
-            return False
-
-        if self._estoque_baixado:
-            if produtos is None:
-                raise ValueError(
-                    "Informe a lista de produtos para estornar o estoque"
-                )
-
-            self._estornar_estoque(produtos)
-            self._estoque_baixado = False
-
-        self.status = "cancelado"
-        return True
-
     def fechar_pedido_com_carrinho(
         self,
         carrinho: Carrinho,
@@ -289,15 +255,30 @@ class Pedido:
         if self.itens:
             raise ValueError("Este pedido já possui itens")
 
+        for item in carrinho:
+            if not item.produto.ativo:
+                raise ValueError(
+                    f"O produto '{item.produto.nome}' está inativo."
+                )
+
+            if item.quantidade > item.produto.estoque:
+                raise ValueError(
+                    f"Estoque insuficiente para '{item.produto.nome}'. "
+                    f"Disponível: {item.produto.estoque}; "
+                    f"solicitado: {item.quantidade}."
+                )
+
         novos_itens = [
             ItemPedido(
                 sku=item.produto.sku,
                 quantidade=item.quantidade,
                 preco_unitario=item.preco_unitario,
                 digital=item.produto.digital,
+                categoria=item.produto.categoria,
             )
             for item in carrinho
         ]
+        
         subtotal = sum(item.subtotal for item in novos_itens)
 
         desconto = 0.0
@@ -392,6 +373,40 @@ class Pedido:
 
         return ajustes
 
+    def cancelar_pedido(
+        self,
+        janela_horas: int,
+        produtos: Optional[List[Produto]] = None,
+    ) -> bool:
+        if isinstance(janela_horas, bool) or not isinstance(janela_horas, int):
+            raise TypeError(
+                "A janela de cancelamento deve ser um número inteiro de horas"
+            )
+
+        if janela_horas < 0:
+            raise ValueError("A janela de cancelamento não pode ser negativa")
+
+        horas_desde_a_criacao = (
+            datetime.now() - self.data_criacao
+        ).total_seconds() / 3600
+
+        if horas_desde_a_criacao > janela_horas:
+            return False
+
+        if self.status not in {"aguardando_pagamento", "pago"}:
+            return False
+
+        if self._estoque_baixado:
+            if produtos is None:
+                raise ValueError(
+                    "Informe a lista de produtos para estornar o estoque"
+                )
+
+            self._estornar_estoque(produtos)
+            self._estoque_baixado = False
+
+        self.status = "cancelado"
+        return True
 
     def _baixar_estoque(self, produtos: List[Produto]) -> None:
         ajustes = self._obter_produtos_do_pedido(produtos)
