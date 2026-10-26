@@ -1,6 +1,10 @@
 from models.cliente import Cliente
 from models.produto import Produto
 from models.endereco import Endereco
+from datetime import datetime, timedelta
+from services.configuracao import carregar_configuracoes
+from models.cupom import Cupom
+
 from services.dados import (
     carregar_clientes,
     carregar_produtos,
@@ -181,3 +185,16 @@ def remover_cliente(id_cliente: str) -> Cliente:
     salvar_clientes(clientes)
 
     return cliente
+
+def criar_cupom(codigo, tipo, valor_margem, uso_maximo):
+    configuracoes = carregar_configuracoes()
+    dias = configuracoes["cupons"]["validade_padrao_dias"]
+    data_validade = datetime.now() + timedelta(days=dias)
+
+    return Cupom(
+        codigo=codigo,
+        tipo=tipo,
+        valor_margem=valor_margem,
+        data_validade=data_validade,
+        uso_maximo=uso_maximo,
+    )
