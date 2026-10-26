@@ -1,11 +1,12 @@
 import math
 
 class ItemPedido:
-    def __init__(self, sku: str, quantidade: int, preco_unitario: float, digital: bool = False,):
+    def __init__(self, sku: str, quantidade: int, preco_unitario: float, digital: bool = False, categoria: str = "Sem categoria registrada",):
         self.sku = sku
         self.quantidade = quantidade
         self.preco_unitario = preco_unitario
         self.digital = digital
+        self.categoria = categoria
     
     @property
     def sku(self) -> str:
@@ -80,13 +81,29 @@ class ItemPedido:
             raise TypeError("O campo digital deve ser True ou False")
         self._digital = valor
             
+    @property
+    def categoria(self) -> str:
+        return self._categoria
 
+    @categoria.setter
+    def categoria(self, valor: str) -> None:
+        if not isinstance(valor, str):
+            raise TypeError("A categoria deve ser um texto.")
+
+        categoria_limpa = valor.strip().title()
+
+        if not categoria_limpa:
+            raise ValueError("A categoria não pode ser vazia.")
+
+        self._categoria = categoria_limpa
+    
     def to_dict(self) -> dict:
         return {
             "sku": self.sku,
             "quantidade": self.quantidade,
             "preco_unitario": self.preco_unitario,
             "digital": self.digital,
+            "categoria": self.categoria,
             "subtotal": self.subtotal,
 
         }
@@ -98,6 +115,9 @@ class ItemPedido:
             quantidade=dados["quantidade"],
             preco_unitario=dados["preco_unitario"],
             digital=dados.get("digital", False),
+            categoria=dados.get(
+                "categoria",
+                "Sem categoria registrada",)
         )
     
 
