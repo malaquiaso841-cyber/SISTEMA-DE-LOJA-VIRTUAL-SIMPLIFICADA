@@ -1,146 +1,127 @@
-# Diagrama UML
+Diagrama UML do Sistema de Loja Virtual Simplificada
 
-```mermaid
+Diagrama em Mermaid. Visualizadores Markdown compatíveis podem renderizar o bloco abaixo.
+
+~~~mermaid
 classDiagram
     class Produto {
-        +str sku
-        +str nome
-        +str categoria
-        +float preco_unitario
+        +String sku
+        +String nome
+        +float preco
         +int estoque
-        +bool ativo
+        +String categoria
         +bool digital
-        +atualizar_estoque(quantidade)
-        +to_dict()
-        +from_dict(dados)
     }
-
     class Cliente {
-        +str id_cliente
-        +str nome
-        +str email
-        +str cpf
-        +List~Endereco~ enderecos
-        +to_dict()
-        +from_dict(dados)
+        +String nome
+        +String email
+        +Endereco endereco
     }
-
     class Endereco {
-        +str logradouro
-        +str numero
-        +str bairro
-        +str cidade
-        +str uf
-        +str cep
-        +to_dict()
-        +from_dict(dados)
+        +String rua
+        +String cidade
+        +String uf
+        +String cep
     }
-
     class Carrinho {
         +Cliente cliente
-        +List~ItemCarrinho~ itens
-        +adicionar_item(produto, quantidade)
-        +remover_item(sku)
+        +adicionar_produto(produto, quantidade)
+        +remover_produto(sku)
         +calcular_total()
-        +limpar()
     }
-
     class ItemCarrinho {
         +Produto produto
         +int quantidade
         +float preco_unitario
-        +float subtotal
+        +subtotal
     }
-
-    class Pedido {
-        +str id
-        +Cliente cliente
-        +Endereco endereco_entrega
-        +List~ItemPedido~ itens
-        +float valor_frete
-        +float valor_desconto
-        +str status
-        +str codigo_rastreio
-        +datetime data_criacao
-        +datetime data_entrega
-        +List~Pagamento~ pagamentos
-        +fechar_pedido_com_carrinho(carrinho, frete, cupom)
-        +calcular_total_pedido()
-        +registrar_pagamento(pagamento)
-        +alterar_status(novo_status)
-        +cancelar_pedido(janela_horas)
-        +gerar_resumo_nota()
-        +to_dict()
-        +from_dict(dados)
+    class Cupom {
+        +String codigo
+        +float desconto
+        +datetime validade
+        +validar()
     }
-
+    class Frete {
+        +calcular(endereco, itens)
+    }
     class ItemPedido {
-        +str sku
+        +String sku
         +int quantidade
         +float preco_unitario
         +bool digital
-        +float subtotal
+        +String categoria
+        +subtotal
         +to_dict()
         +from_dict(dados)
     }
-
     class Pagamento {
-        +datetime data
-        +str forma
+        +String metodo
         +float valor
-        +to_dict()
-        +from_dict(dados)
+        +processar()
     }
-
-    class Cupom {
-        +str codigo
-        +str tipo
-        +float valor_margem
-        +datetime data_validade
-        +int uso_maximo
-        +validar()
-        +calcular_desconto(subtotal)
-        +registrar_uso()
-        +to_dict()
-        +from_dict(dados)
+    class Pedido {
+        +String id
+        +datetime data_criacao
+        +String status
+        +List~ItemPedido~ itens
+        +fechar_pedido_com_carrinho(carrinho)
+        +registrar_pagamento(pagamento, produtos)
+        +cancelar_pedido(janela_horas, produtos)
+        +calcular_total_pedido()
     }
-
-    class Frete {
-        +calcular_valor(endereco)
-        +calcular_prazo(endereco)
-        +calcular(endereco)
+    class Cadastros {
+        +criar_produto()
+        +criar_cliente()
+        +criar_cupom()
     }
-
-    class Dados {
-        +carregar_produtos()
-        +salvar_produtos(produtos)
-        +carregar_clientes()
-        +salvar_clientes(clientes)
-        +carregar_pedidos()
-        +salvar_pedidos(pedidos)
-        +carregar_cupons()
-        +salvar_cupons(cupons)
+    class OperacoesPedido {
+        +criar_pedido()
+        +cancelar_pedido()
+        +registrar_pagamento()
     }
-
     class Relatorios {
+        +gerar_relatorio_vendas_por_periodo()
+        +gerar_relatorio_vendas_por_categoria()
+        +gerar_relatorio_vendas_por_uf()
+        +gerar_relatorio_pedidos_por_status()
+        +gerar_relatorio_top_produtos_e_ticket_medio()
         +gerar_relatorio_estoque()
-        +gerar_relatorio_pedidos()
-        +gerar_relatorio_vendas()
     }
+    class Configuracao {
+        +carregar_configuracoes()
+    }
+    class PersistenciaJSON {
+        +carregar_produtos()
+        +salvar_produtos()
+        +carregar_pedidos()
+        +salvar_pedidos()
+    }
+    class LojaGUI
+    class MenuCLI
 
-    Cliente "1" *-- "0..*" Endereco : possui
-    Carrinho "1" *-- "0..*" ItemCarrinho : contém
-    ItemCarrinho "*" --> "1" Produto : referencia
-    Pedido "1" *-- "1..*" ItemPedido : contém
-    Pedido "*" --> "1" Cliente : pertence a
-    Pedido "*" --> "1" Endereco : entrega em
-    Pedido "1" *-- "0..*" Pagamento : recebe
-    Pedido ..> Carrinho : converte em pedido
-    Pedido ..> Cupom : aplica desconto
-    Pedido ..> Frete : calcula entrega
-    Frete ..> Endereco : consulta UF
-    Dados ..> Produto : salva e carrega
-    Dados ..> Cliente : salva e carrega
-    Dados ..> Pedido : salva e carrega
-    Dados ..> Cupom : salva e carrega
-```
+    Cliente *-- Endereco
+    Carrinho o-- ItemCarrinho
+    ItemCarrinho --> Produto
+    Carrinho --> Cliente
+    Pedido *-- ItemPedido
+    Pedido --> Cliente
+    Pedido --> Cupom
+    Pedido --> Pagamento
+    Pedido ..> Frete
+    Cadastros ..> Produto
+    Cadastros ..> Cliente
+    Cadastros ..> Cupom
+    OperacoesPedido ..> Pedido
+    OperacoesPedido ..> PersistenciaJSON
+    Relatorios ..> PersistenciaJSON
+    LojaGUI ..> Cadastros
+    LojaGUI ..> OperacoesPedido
+    LojaGUI ..> Relatorios
+    MenuCLI ..> Cadastros
+    MenuCLI ..> OperacoesPedido
+    MenuCLI ..> Relatorios
+~~~
+
+Observação: o produto é representado por uma única classe `Produto`, que possui o atributo booleano `digital`; o projeto não define subclasses separadas para produtos físicos e digitais.
+
+Os nomes dos métodos de serviço no diagrama representam as responsabilidades do sistema. Consulte os arquivos em `models/` e `services/` para a implementação detalhada.
