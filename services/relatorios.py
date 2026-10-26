@@ -1,5 +1,6 @@
 from datetime import datetime
 from collections import Counter
+from services.configuracao import carregar_configuracoes
 
 from services.dados import (
     carregar_pedidos,
@@ -184,8 +185,12 @@ def gerar_relatorio_faturamento_por_periodo(
     ])
 
 def gerar_relatorio_top_produtos_e_ticket_medio(
-    limite: int = 5,
+    limite: int | None = None,
 ) -> str:
+    if limite is None:
+        configuracoes = carregar_configuracoes()
+        limite = configuracoes["relatorios"]["top_n_produtos"]
+        
     if isinstance(limite, bool) or not isinstance(limite, int):
         raise TypeError("O limite deve ser um número inteiro")
 
@@ -275,4 +280,44 @@ def gerar_relatorio_vendas_por_uf() -> str:
         )
 
     return "\n".join(linhas)
-    
+
+def gerar_relatorio_vendas_por_categoria() -> str:
+    pedidos = carregar_pedidos()
+
+    pedidos_concluidos = [
+        pedido
+        for pedido in pedidos
+        if pedido.status in {"pago", "enviado", "entregue"}
+    ]
+
+    if not pedidos_concluidos:
+        return "Não há vendas concluídas para gerar o relatório."
+
+    vendas_por_categoria = {}
+
+    for pedido in pedidos_concluidos:
+        for item in pedido.itens:
+            categoria = item.categoria
+
+            if categoria not in vendas_por_categoria:
+                vendas_por_categoria[categoria] = {
+                    "unidades": 0,
+                    "valor_bruto": 0.0,
+                }
+
+            vendas_por_categoria[categoria]["unidades"] += item.quantidade
+            vendas_por_categoria[categoria]["valor_bruto"] += item.subtotal
+
+    linhas = [
+        "RELATÓRIO DE VENDAS POR CATEGORIA",
+        "",
+    ]
+
+    for categoria, dados in sorted(vendas_por_categoria.items()):
+        linhas.append(
+            f"{categoria}: "
+            f"{dados['unidades']} unidade(s) | "
+            f"Valor bruto: R$ {dados['valor_bruto']:.2f}"
+        )
+
+    return "\n".join(linhas)
