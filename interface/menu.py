@@ -86,10 +86,7 @@ def perguntar_se_e_digital() -> bool:
 
         print("Resposta inválida. Digite 's' ou 'n'.")
 
-
-# ----------------------------------------------------------------------
 # Produtos
-# ----------------------------------------------------------------------
 
 def cadastrar_produto() -> None:
     print("\n=== Cadastro de produto ===")
@@ -603,9 +600,7 @@ def cancelar_pedido() -> None:
 
     try:
         cancelado = cancelar_pedido_servico(
-             cancelado = cancelar_pedido_servico(
-            pedido_id=id_pedido,
-        )
+           pedido_id=id_pedido,
         )
 
         if cancelado:
