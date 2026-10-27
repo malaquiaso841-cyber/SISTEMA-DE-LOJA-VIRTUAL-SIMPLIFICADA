@@ -1,18 +1,18 @@
 {
   "frete": {
     "por_uf": {
-      "CE": {
-        "valor": 15.0,
-        "prazo_dias": 5
-      },
-      "SP": {
-        "valor": 25.0,
-        "prazo_dias": 8
-      }
+      "CE": { "valor": 15.0, "prazo_dias": 5 },
+      "SP": { "valor": 25.0, "prazo_dias": 8 }
     },
-    "padrao": {
-      "valor": 30.0,
-      "prazo_dias": 12
-    }
+    "padrao": { "valor": 30.0, "prazo_dias": 12 }
+  },
+  "politica_cancelamento": {
+    "janela_horas": 24
+  },
+  "cupons": {
+    "validade_padrao_dias": 30
+  },
+  "relatorios": {
+    "top_n_produtos": 5
   }
 }
