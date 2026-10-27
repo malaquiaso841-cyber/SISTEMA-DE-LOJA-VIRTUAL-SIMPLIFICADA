@@ -1,8 +1,6 @@
-import datetime
 from models.pagamento import Pagamento
 from models.pedido import Pedido
 from services.configuracao import carregar_configuracoes
-from services.relatorios import gerar_relatorio_vendas_por_categoria
 from services.dados import (
     carregar_pedidos,
     carregar_produtos,
@@ -82,17 +80,3 @@ def alterar_status_pedido(
     salvar_pedidos(pedidos)
 
     return pedido
-
-def test_relatorio_vendas_por_categoria(pedido_salvo):
-    pagamento = Pagamento(
-        data=datetime.now(),
-        forma="PIX",
-        valor=pedido_salvo.calcular_total_pedido(),
-    )
-    registrar_pagamento_pedido("PED-001", pagamento)
-
-    relatorio = gerar_relatorio_vendas_por_categoria()
-
-    assert "Perifericos" in relatorio
-    assert "1 unidade(s)" in relatorio
-    assert "R$ 50.00" in relatorio
