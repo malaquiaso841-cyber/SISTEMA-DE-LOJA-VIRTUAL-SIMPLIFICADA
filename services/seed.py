@@ -102,7 +102,7 @@ def executar_seed() -> dict[str, int]:
             codigo="SEED5",
             tipo="VALOR",
             valor_margem=5.00,
-            data_validade=datetime.now() + timedelta(days=30),
+            data_validade=datetime.now() + timedelta(days=dias_validade),
             uso_maximo=50,
             categorias_elegiveis=[],
         ),
