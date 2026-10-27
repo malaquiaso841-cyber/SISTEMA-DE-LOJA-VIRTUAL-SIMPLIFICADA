@@ -14,6 +14,7 @@ from services.relatorios import gerar_relatorio_pedidos_por_status
 from services.relatorios import gerar_relatorio_faturamento_por_periodo
 from services.relatorios import gerar_relatorio_top_produtos_e_ticket_medio
 from services.relatorios import gerar_relatorio_vendas_por_uf
+from services.relatorios import gerar_relatorio_vendas_por_categoria
 from services.operacoes_pedido import (
     cancelar_pedido as cancelar_pedido_com_persistencia,
     registrar_pagamento_pedido,
@@ -204,3 +205,17 @@ def test_relatorio_vendas_por_uf(pedido_salvo):
 
     assert "CE: 1 pedido(s)" in relatorio
     assert "Faturamento: R$ 65.00" in relatorio
+
+def test_relatorio_vendas_por_categoria(pedido_salvo):
+    pagamento = Pagamento(
+        data=datetime.now(),
+        forma="PIX",
+        valor=pedido_salvo.calcular_total_pedido(),
+    )
+    registrar_pagamento_pedido("PED-001", pagamento)
+
+    relatorio = gerar_relatorio_vendas_por_categoria()
+
+    assert "Perifericos" in relatorio
+    assert "1 unidade(s)" in relatorio
+    assert "R$ 50.00" in relatorio
