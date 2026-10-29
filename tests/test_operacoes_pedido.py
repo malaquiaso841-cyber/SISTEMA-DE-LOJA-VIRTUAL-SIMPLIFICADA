@@ -219,3 +219,10 @@ def test_relatorio_vendas_por_categoria(pedido_salvo):
     assert "Perifericos" in relatorio
     assert "1 unidade(s)" in relatorio
     assert "R$ 50.00" in relatorio
+
+def test_prazo_estimado_frete_no_pedido(pedido_salvo):
+    assert pedido_salvo.prazo_entrega_dias == 5
+    assert "5 dias úteis" in pedido_salvo.gerar_resumo_nota()
+
+    pedido_recarregado = Pedido.from_dict(pedido_salvo.to_dict())
+    assert pedido_recarregado.prazo_entrega_dias == 5
