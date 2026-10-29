@@ -355,39 +355,73 @@ def criar_pedido() -> None:
 
     carrinho = Carrinho(cliente)
 
-    print("\nAdicione produtos ao carrinho. Digite FIM para continuar.")
-
     while True:
-        print("\n=== Produtos disponíveis ===")
-        for produto in produtos_ativos:
-            print(
-                f"{produto.sku} | {produto.nome} | "
-                f"R$ {produto.preco_unitario:.2f} | "
-                f"Estoque: {produto.estoque}"
-            )
+        print("\n=== Carrinho ===")
+        print("1. Adicionar produto")
+        print("2. Remover produto")
+        print("3. Alterar quantidade")
+        print("4. Ver carrinho")
+        print("0. Finalizar pedido")
 
-        sku = input("\nSKU do produto (ou FIM): ").strip().upper()
-
-        if sku == "FIM":
-            break
-
-        produto = next(
-            (item for item in produtos_ativos if item.sku == sku),
-            None,
-        )
-
-        if produto is None:
-            print("Produto não encontrado ou inativo.")
-            continue
+        opcao = input("Escolha uma opção: ").strip()
 
         try:
-            quantidade = ler_int("Quantidade: ")
-            carrinho.adicionar_item(produto, quantidade)
-            print("Produto adicionado ao carrinho.")
-            print(f"Subtotal atual: R$ {carrinho.subtotal:.2f}")
+            if opcao == "1":
+                print("\n=== Produtos disponíveis ===")
+                for produto in produtos_ativos:
+                    print(
+                        f"{produto.sku} | {produto.nome} | "
+                        f"R$ {produto.preco_unitario:.2f} | "
+                        f"Estoque: {produto.estoque}"
+                    )
+
+                sku = input("SKU do produto: ").strip().upper()
+                produto = next(
+                    (item for item in produtos_ativos if item.sku == sku),
+                    None,
+                )
+
+                if produto is None:
+                    print("Produto não encontrado ou inativo.")
+                    continue
+
+                quantidade = ler_int("Quantidade: ")
+                carrinho.adicionar_item(produto, quantidade)
+                print("Produto adicionado ao carrinho.")
+
+            elif opcao == "2":
+                sku = input("SKU do produto a remover: ").strip().upper()
+                carrinho.remover_item(sku)
+                print("Produto removido.")
+
+            elif opcao == "3":
+                sku = input("SKU do produto: ").strip().upper()
+                quantidade = ler_int(
+                    "Nova quantidade (0 remove o produto): "
+                )
+                carrinho.atualizar_quantidade(sku, quantidade)
+                print("Carrinho atualizado.")
+
+            elif opcao == "4":
+                if carrinho.esta_vazio:
+                    print("O carrinho está vazio.")
+                else:
+                    for item in carrinho:
+                        print(
+                            f"{item.produto.sku} | {item.produto.nome} | "
+                            f"Quantidade: {item.quantidade} | "
+                            f"Subtotal: R$ {item.subtotal:.2f}"
+                        )
+                    print(f"Subtotal: R$ {carrinho.subtotal:.2f}")
+
+            elif opcao == "0":
+                break
+
+            else:
+                print("Opção inválida.")
 
         except (TypeError, ValueError) as erro:
-            print(f"Não foi possível adicionar o produto: {erro}")
+            print(f"Não foi possível atualizar o carrinho: {erro}")
 
     if carrinho.esta_vazio:
         print("O carrinho está vazio; o pedido não foi criado.")
@@ -400,9 +434,13 @@ def criar_pedido() -> None:
             f"Quantidade: {item.quantidade} | "
             f"Subtotal: R$ {item.subtotal:.2f}"
         )
+
     print(f"Subtotal: R$ {carrinho.subtotal:.2f}")
 
-    codigo = input("Código do cupom (Enter para pular): ").strip().upper()
+    codigo = input(
+        "Código do cupom (Enter para pular): "
+    ).strip().upper()
+
     cupom = None
 
     if codigo:
@@ -410,6 +448,7 @@ def criar_pedido() -> None:
             (item for item in cupons if item.codigo == codigo),
             None,
         )
+
         if cupom is None:
             print("Cupom não encontrado.")
             return
@@ -427,8 +466,7 @@ def criar_pedido() -> None:
             cupom=cupom,
         )
 
-        # O estoque não é reduzido aqui.
-        # Pedido.registrar_pagamento faz a baixa quando o total é quitado.
+        # O estoque é baixado quando o pagamento total é confirmado.
         pedidos.append(pedido)
         salvar_pedidos(pedidos)
 
@@ -440,7 +478,6 @@ def criar_pedido() -> None:
 
     except (TypeError, ValueError, FileNotFoundError) as erro:
         print(f"Não foi possível criar o pedido: {erro}")
-
 
 def registrar_pagamento() -> None:
     pedidos = carregar_pedidos()
