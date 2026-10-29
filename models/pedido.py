@@ -43,6 +43,7 @@ class Pedido:
         self.data_entrega: Optional[datetime] = None
         self._estoque_baixado = False
         self.pagamentos: List["Pagamento"] = []
+        self.prazo_entrega_dias: Optional[int] = None
 
     @property
     def id(self) -> str:
@@ -320,16 +321,20 @@ class Pedido:
             for item in carrinho
         )
 
-        valor_frete = (
-            frete.calcular_valor(self.endereco_entrega)
-            if tem_produto_fisico
-            else 0.0
-        )
+        if tem_produto_fisico:
+            dados_frete = frete.calcular(self.endereco_entrega)
+            valor_frete = dados_frete["valor"]
+            prazo_entrega_dias = dados_frete["prazo_dias"]
+        else:
+            valor_frete = 0.0
+            prazo_entrega_dias = None
 
         self.itens = novos_itens
         self.valor_frete = valor_frete
         self.valor_desconto = desconto
         self.data_criacao = datetime.now()
+        self.valor_frete = valor_frete
+        self.prazo_entrega_dias = prazo_entrega_dias
 
         if cupom is not None:
             cupom.registrar_uso(categoria_validada)
@@ -466,6 +471,12 @@ class Pedido:
         if self.codigo_rastreio:
             linhas.append(f"Código de rastreio: {self.codigo_rastreio}")
 
+        if self.prazo_entrega_dias is not None:
+            linhas.append(
+                f"Prazo estimado de entrega: "
+                f"{self.prazo_entrega_dias} dias úteis"
+            )
+
         return "\n".join(linhas)
 
     def to_dict(self) -> dict:
@@ -479,6 +490,7 @@ class Pedido:
             "status": self.status,
             "codigo_rastreio": self.codigo_rastreio,
             "data_criacao": self.data_criacao.isoformat(),
+            "prazo_entrega_dias": self.prazo_entrega_dias,
             "data_entrega": (
                 self.data_entrega.isoformat()
                 if self.data_entrega is not None
@@ -513,6 +525,7 @@ class Pedido:
         pedido.status = dados.get("status", "aguardando_pagamento")
         pedido.codigo_rastreio = dados.get("codigo_rastreio")
         pedido._estoque_baixado = dados.get("estoque_baixado", False)
+        pedido.prazo_entrega_dias = dados.get("prazo_entrega_dias")
 
         if dados.get("data_criacao"):
             pedido.data_criacao = datetime.fromisoformat(dados["data_criacao"])
