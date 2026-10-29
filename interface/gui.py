@@ -340,98 +340,279 @@ class LojaGUI:
         produtos = [p for p in carregar_produtos() if p.ativo]
         cupons = carregar_cupons()
         pedidos = carregar_pedidos()
+
         if not clientes or not produtos:
-            messagebox.showinfo("Pedido", "Cadastre pelo menos um cliente e um produto ativo.", parent=self.raiz)
+            messagebox.showinfo(
+                "Pedido",
+                "Cadastre pelo menos um cliente e um produto ativo.",
+                parent=self.raiz,
+            )
             return
 
         janela = tk.Toplevel(self.raiz)
         janela.title("Criar pedido")
         janela.transient(self.raiz)
         janela.grab_set()
-        janela.geometry("760x560")
+        janela.geometry("760x620")
 
-        ttk.Label(janela, text="Cliente").grid(row=0, column=0, padx=10, pady=8, sticky="w")
+        ttk.Label(janela, text="Cliente").grid(
+            row=0, column=0, padx=10, pady=8, sticky="w"
+        )
         cliente_var = tk.StringVar()
         combo_cliente = ttk.Combobox(
-            janela, textvariable=cliente_var, state="readonly", width=55,
+            janela,
+            textvariable=cliente_var,
+            state="readonly",
+            width=55,
             values=[f"{c.id_cliente} — {c.nome}" for c in clientes],
         )
         combo_cliente.grid(row=0, column=1, padx=10, pady=8, sticky="ew")
         combo_cliente.current(0)
 
-        ttk.Label(janela, text="Endereço").grid(row=1, column=0, padx=10, pady=8, sticky="w")
+        ttk.Label(janela, text="Endereço").grid(
+            row=1, column=0, padx=10, pady=8, sticky="w"
+        )
         endereco_var = tk.StringVar()
-        combo_endereco = ttk.Combobox(janela, textvariable=endereco_var, state="readonly", width=55)
+        combo_endereco = ttk.Combobox(
+            janela,
+            textvariable=endereco_var,
+            state="readonly",
+            width=55,
+        )
         combo_endereco.grid(row=1, column=1, padx=10, pady=8, sticky="ew")
 
         def atualizar_enderecos(_evento=None):
-            cliente = clientes[combo_cliente.current()]
-            enderecos = [str(e) for e in cliente.enderecos]
+            indice_cliente = combo_cliente.current()
+            if indice_cliente < 0:
+                combo_endereco["values"] = []
+                combo_endereco.set("")
+                return
+
+            cliente_selecionado = clientes[indice_cliente]
+            enderecos = [str(e) for e in cliente_selecionado.enderecos]
             combo_endereco["values"] = enderecos
             combo_endereco.current(0 if enderecos else -1)
+
         combo_cliente.bind("<<ComboboxSelected>>", atualizar_enderecos)
         atualizar_enderecos()
 
-        ttk.Label(janela, text="Produto").grid(row=2, column=0, padx=10, pady=8, sticky="w")
+        ttk.Label(janela, text="Produto").grid(
+            row=2, column=0, padx=10, pady=8, sticky="w"
+        )
         produto_var = tk.StringVar()
         combo_produto = ttk.Combobox(
-            janela, textvariable=produto_var, state="readonly", width=55,
-            values=[f"{p.sku} — {p.nome} (estoque {p.estoque})" for p in produtos],
+            janela,
+            textvariable=produto_var,
+            state="readonly",
+            width=55,
+            values=[
+                f"{p.sku} — {p.nome} (estoque {p.estoque})"
+                for p in produtos
+            ],
         )
         combo_produto.grid(row=2, column=1, padx=10, pady=8, sticky="ew")
         combo_produto.current(0)
 
-        ttk.Label(janela, text="Quantidade").grid(row=3, column=0, padx=10, pady=8, sticky="w")
+        ttk.Label(janela, text="Quantidade").grid(
+            row=3, column=0, padx=10, pady=8, sticky="w"
+        )
         qtd_var = tk.StringVar(value="1")
-        ttk.Entry(janela, textvariable=qtd_var, width=12).grid(row=3, column=1, padx=10, pady=8, sticky="w")
+        ttk.Entry(
+            janela,
+            textvariable=qtd_var,
+            width=12,
+        ).grid(row=3, column=1, padx=10, pady=8, sticky="w")
 
-        tabela = ttk.Treeview(janela, columns=("sku", "produto", "qtd", "subtotal"), show="headings", height=9)
-        for col, width in (("sku", 100), ("produto", 260), ("qtd", 80), ("subtotal", 120)):
-            tabela.heading(col, text=col.title())
-            tabela.column(col, width=width)
-        tabela.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        tabela = ttk.Treeview(
+            janela,
+            columns=("sku", "produto", "qtd", "subtotal"),
+            show="headings",
+            height=9,
+        )
+        for coluna, largura in (
+            ("sku", 100),
+            ("produto", 260),
+            ("qtd", 80),
+            ("subtotal", 120),
+        ):
+            tabela.heading(coluna, text=coluna.title())
+            tabela.column(coluna, width=largura)
 
-        cupom_var = tk.StringVar()
-        ttk.Label(janela, text="Cupom (opcional)").grid(row=5, column=0, padx=10, pady=8, sticky="w")
-        ttk.Entry(janela, textvariable=cupom_var, width=30).grid(row=5, column=1, padx=10, pady=8, sticky="w")
+        tabela.grid(
+            row=4,
+            column=0,
+            columnspan=2,
+            padx=10,
+            pady=10,
+            sticky="nsew",
+        )
 
         carrinho = Carrinho(clientes[0])
         subtotal_var = tk.StringVar(value="Subtotal: R$ 0,00")
-        ttk.Label(janela, textvariable=subtotal_var, font=("Segoe UI", 11, "bold")).grid(row=6, column=0, padx=10, pady=8, sticky="w")
+        ttk.Label(
+            janela,
+            textvariable=subtotal_var,
+            font=("Segoe UI", 11, "bold"),
+        ).grid(row=7, column=0, padx=10, pady=8, sticky="w")
+
+        def atualizar_tabela():
+            tabela.delete(*tabela.get_children())
+
+            for item in carrinho:
+                tabela.insert(
+                    "",
+                    "end",
+                    values=(
+                        item.produto.sku,
+                        item.produto.nome,
+                        item.quantidade,
+                        f"R$ {item.subtotal:.2f}",
+                    ),
+                )
+
+            subtotal_var.set(f"Subtotal: R$ {carrinho.subtotal:.2f}")
+
+        def obter_item_selecionado():
+            selecao = tabela.selection()
+            if not selecao:
+                messagebox.showinfo(
+                    "Carrinho",
+                    "Selecione um item na tabela.",
+                    parent=janela,
+                )
+                return None
+
+            valores = tabela.item(selecao[0], "values")
+            return valores[0], int(valores[2])
 
         def adicionar_item():
             try:
-                idx = combo_produto.current()
-                if idx < 0:
+                indice_produto = combo_produto.current()
+                if indice_produto < 0:
                     raise ValueError("Selecione um produto.")
-                produto = produtos[idx]
-                carrinho.adicionar_item(produto, int(qtd_var.get()))
-                tabela.delete(*tabela.get_children())
-                for item in carrinho:
-                    tabela.insert("", "end", values=(
-                        item.produto.sku, item.produto.nome, item.quantidade,
-                        f"R$ {item.subtotal:.2f}",
-                    ))
-                subtotal_var.set(f"Subtotal: R$ {carrinho.subtotal:.2f}")
+
+                produto = produtos[indice_produto]
+                quantidade = int(qtd_var.get())
+                carrinho.adicionar_item(produto, quantidade)
+                atualizar_tabela()
+
             except (TypeError, ValueError) as erro:
                 messagebox.showerror("Carrinho", str(erro), parent=janela)
 
-        ttk.Button(janela, text="Adicionar produto", command=adicionar_item).grid(row=3, column=1, padx=150, pady=8, sticky="w")
+        def remover_item():
+            selecionado = obter_item_selecionado()
+            if selecionado is None:
+                return
+
+            sku, _quantidade_atual = selecionado
+
+            try:
+                carrinho.remover_item(sku)
+                atualizar_tabela()
+            except (TypeError, ValueError) as erro:
+                messagebox.showerror("Carrinho", str(erro), parent=janela)
+
+        def alterar_quantidade():
+            selecionado = obter_item_selecionado()
+            if selecionado is None:
+                return
+
+            sku, quantidade_atual = selecionado
+            nova_quantidade = simpledialog.askinteger(
+                "Alterar quantidade",
+                "Nova quantidade (0 remove o item):",
+                initialvalue=quantidade_atual,
+                minvalue=0,
+                parent=janela,
+            )
+
+            if nova_quantidade is None:
+                return
+
+            try:
+                carrinho.atualizar_quantidade(sku, nova_quantidade)
+                atualizar_tabela()
+            except (TypeError, ValueError) as erro:
+                messagebox.showerror("Carrinho", str(erro), parent=janela)
+
+        ttk.Button(
+            janela,
+            text="Adicionar produto",
+            command=adicionar_item,
+        ).grid(row=3, column=1, padx=150, pady=8, sticky="w")
+
+        acoes_carrinho = ttk.Frame(janela)
+        acoes_carrinho.grid(
+            row=5,
+            column=0,
+            columnspan=2,
+            padx=10,
+            pady=6,
+            sticky="w",
+        )
+        ttk.Button(
+            acoes_carrinho,
+            text="Remover item selecionado",
+            command=remover_item,
+        ).pack(side="left", padx=(0, 8))
+        ttk.Button(
+            acoes_carrinho,
+            text="Alterar quantidade",
+            command=alterar_quantidade,
+        ).pack(side="left")
+
+        cupom_var = tk.StringVar()
+        ttk.Label(janela, text="Cupom (opcional)").grid(
+            row=6, column=0, padx=10, pady=8, sticky="w"
+        )
+        ttk.Entry(
+            janela,
+            textvariable=cupom_var,
+            width=30,
+        ).grid(row=6, column=1, padx=10, pady=8, sticky="w")
 
         def salvar_pedido():
             if carrinho.esta_vazio:
-                messagebox.showerror("Pedido", "Adicione pelo menos um produto.", parent=janela)
+                messagebox.showerror(
+                    "Pedido",
+                    "Adicione pelo menos um produto.",
+                    parent=janela,
+                )
                 return
+
             cliente = clientes[combo_cliente.current()]
             if not cliente.enderecos:
-                messagebox.showerror("Pedido", "O cliente não possui endereço cadastrado.", parent=janela)
+                messagebox.showerror(
+                    "Pedido",
+                    "O cliente não possui endereço cadastrado.",
+                    parent=janela,
+                )
                 return
-            endereco = cliente.enderecos[combo_endereco.current()]
+
+            indice_endereco = combo_endereco.current()
+            if indice_endereco < 0:
+                messagebox.showerror(
+                    "Pedido",
+                    "Selecione um endereço de entrega.",
+                    parent=janela,
+                )
+                return
+
+            endereco = cliente.enderecos[indice_endereco]
             carrinho.cliente = cliente
+
             codigo = cupom_var.get().strip().upper()
-            cupom = next((c for c in cupons if c.codigo == codigo), None) if codigo else None
+            cupom = next(
+                (item for item in cupons if item.codigo == codigo),
+                None,
+            ) if codigo else None
+
             if codigo and cupom is None:
-                messagebox.showerror("Cupom", "Cupom não encontrado.", parent=janela)
+                messagebox.showerror(
+                    "Cupom",
+                    "Cupom não encontrado.",
+                    parent=janela,
+                )
                 return
 
             try:
@@ -441,22 +622,48 @@ class LojaGUI:
                     endereco_entrega=endereco,
                 )
                 pedido.fechar_pedido_com_carrinho(
-                    carrinho=carrinho, frete=Frete(), cupom=cupom,
+                    carrinho=carrinho,
+                    frete=Frete(),
+                    cupom=cupom,
                 )
+
                 pedidos.append(pedido)
                 salvar_pedidos(pedidos)
+
                 if cupom is not None:
                     salvar_cupons(cupons)
-                messagebox.showinfo("Pedido criado", pedido.gerar_resumo_nota(), parent=janela)
+
+                messagebox.showinfo(
+                    "Pedido criado",
+                    pedido.gerar_resumo_nota(),
+                    parent=janela,
+                )
                 janela.destroy()
                 self.atualizar_tudo()
+
             except (TypeError, ValueError, OSError, KeyError) as erro:
                 messagebox.showerror("Pedido", str(erro), parent=janela)
 
         botoes = ttk.Frame(janela)
-        botoes.grid(row=7, column=0, columnspan=2, sticky="e", padx=10, pady=12)
-        ttk.Button(botoes, text="Fechar pedido", command=salvar_pedido).pack(side="right", padx=5)
-        ttk.Button(botoes, text="Voltar", command=janela.destroy).pack(side="right", padx=5)
+        botoes.grid(
+            row=8,
+            column=0,
+            columnspan=2,
+            sticky="e",
+            padx=10,
+            pady=12,
+        )
+        ttk.Button(
+            botoes,
+            text="Fechar pedido",
+            command=salvar_pedido,
+        ).pack(side="right", padx=5)
+        ttk.Button(
+            botoes,
+            text="Voltar",
+            command=janela.destroy,
+        ).pack(side="right", padx=5)
+
         janela.columnconfigure(1, weight=1)
         janela.rowconfigure(4, weight=1)
 
