@@ -19,11 +19,11 @@ Sistema acadêmico desenvolvido em Python para simular operações de uma loja v
 - [Estrutura das classes](https://github.com/malaquiaso841-cyber/SISTEMA-DE-LOJA-VIRTUAL-SIMPLIFICADA/blob/main/docs/estrutura_classes.md)
 - [Diagrama UML](https://github.com/malaquiaso841-cyber/SISTEMA-DE-LOJA-VIRTUAL-SIMPLIFICADA/blob/main/docs/uml.txt)
 - [Regras de negócio adotadas](https://github.com/malaquiaso841-cyber/SISTEMA-DE-LOJA-VIRTUAL-SIMPLIFICADA/blob/main/docs/regras_de_negocio.md)
-- [Funcionalidades do sistema](docs/funcionalidades.md)
+- [Funcionalidades do sistema](docs/Funcionalidades.md)
 
 ## Funcionalidades
 
-O sistema oferece cadastro de produtos e clientes, criação de pedidos, pagamentos, frete e relatórios. Consulte a documentação completa em [Funcionalidades do sistema](docs/funcionalidades.md).
+O sistema oferece cadastro de produtos e clientes, criação de pedidos, pagamentos, frete e relatórios. Consulte a documentação completa em [Funcionalidades do sistema](docs/Funcionalidades.md).
 
 
 ## Tecnologias e ferramentas
