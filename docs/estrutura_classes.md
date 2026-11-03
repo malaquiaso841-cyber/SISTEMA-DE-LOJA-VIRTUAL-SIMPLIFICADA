@@ -59,7 +59,6 @@ Detalhamento de todas as entidades e modelos orientados a objetos do sistema.
 
 ### 8. `ItemPedido`
 - **Propósito:** Registra o item comprado com o valor unitário congelado na data do pedido.
-- **Atributos:** `sku`, `quantidade`, `preco_unitario`.
 - **Atributos:** `sku`, `quantidade`, `preco_unitario`, `digital` e `categoria`.
 
 ---
@@ -71,7 +70,6 @@ Detalhamento de todas as entidades e modelos orientados a objetos do sistema.
 ---
 
 ### 10. `Pedido`
-- **Propósito:** Controla o ciclo de vida da compra e máquina de estados.
-- **Atributos:** `id`, `cliente`, `endereco_entrega`, `itens`, `valor_frete`, `valor_desconto`, `status` (`CRIADO`, `PAGO`, `ENVIADO`, `ENTREGUE`, `CANCELADO`), `codigo_rastreio`, `pagamentos`.
-- **Métodos:** Cálculo de total final, transição de estados, cancelamento com estorno de estoque, emissão de nota/resumo e `__str__`/`__repr__`.
-- **Atributos:** `id`, `cliente`, `endereco_entrega`, `itens`, `valor_frete`, `valor_desconto`, `prazo_entrega_dias`, `status`, `codigo_rastreio` e `pagamentos`.
+- **Propósito:** Controla o ciclo de vida da compra e suas transições de estado.
+- **Atributos:** `id`, `cliente`, `endereco_entrega`, `itens`, `valor_frete`, `valor_desconto`, `prazo_entrega_dias`, `status` (`aguardando_pagamento`, `pago`, `enviado`, `entregue` ou `cancelado`), `codigo_rastreio` e `pagamentos`.
+- **Métodos:** Cálculo do total, transição de estados, cancelamento com estorno de estoque, emissão de nota/resumo e `__repr__`.
