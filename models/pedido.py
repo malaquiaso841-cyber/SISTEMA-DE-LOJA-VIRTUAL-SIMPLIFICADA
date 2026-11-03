@@ -535,6 +535,9 @@ class Pedido:
 
         return pedido
 
+    def __str__(self) -> str:
+        return self.gerar_resumo_nota()
+    
     def __repr__(self) -> str:
         return (
             f"Pedido(id='{self.id}', "
