@@ -141,6 +141,7 @@ classDiagram
         +gerar_resumo_nota()
         +to_dict()
         +from_dict(dados)
+        +__str__()
         +__repr__()
     }
 
