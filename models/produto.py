@@ -1,4 +1,20 @@
 class Produto:
+    """Representa um produto disponível no catálogo da loja.
+
+    Armazena a identificação, categoria, preço, quantidade em estoque e
+    estado de ativação do produto. O atributo ``digital`` identifica
+    produtos digitais; eles não geram frete, mas continuam sujeitos ao
+    controle de estoque implementado no sistema.
+
+    Attributes:
+        sku: Código único usado para identificar o produto.
+        nome: Nome apresentado no catálogo e nos pedidos.
+        categoria: Categoria usada, entre outras coisas, nos cupons e relatórios.
+        preco_unitario: Preço de uma unidade do produto.
+        estoque: Quantidade disponível para venda.
+        ativo: Indica se o produto pode ser adicionado a um pedido.
+        digital: Indica se o produto é digital.
+    """
     def __init__(self, sku, nome, categoria, preco_unitario, estoque=0, ativo = True, digital=False, ):
         self.sku = sku
         self.nome = nome

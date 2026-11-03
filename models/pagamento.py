@@ -2,6 +2,18 @@ from datetime import datetime
 import math
 
 class Pagamento:
+    
+    """Representa um pagamento associado a um pedido.
+
+    Armazena a data, a forma e o valor recebido. A classe aceita as formas
+    de pagamento previstas pelo sistema e valida que o valor seja positivo
+    e finito.
+
+    Attributes:
+        data: Data e hora em que o pagamento foi registrado.
+        forma: Forma utilizada, como PIX, crédito, débito ou boleto.
+        valor: Valor recebido neste pagamento.
+    """
     FORMAS_PERMITIDAS = {
         "PIX",
         "CREDITO",

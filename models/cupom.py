@@ -4,6 +4,22 @@ from typing import List, Optional
 
 
 class Cupom:
+    
+    """Representa uma regra de desconto que pode ser aplicada a um pedido.
+
+    Valida a data de validade, o limite de usos e, quando configuradas,
+    as categorias elegíveis. Calcula descontos fixos ou percentuais sem
+    permitir que o desconto ultrapasse o subtotal elegível.
+
+    Attributes:
+        codigo: Código informado para aplicar o cupom.
+        tipo: Tipo de desconto, ``VALOR`` ou ``PERCENTUAL``.
+        valor_margem: Valor em reais ou percentual do desconto.
+        data_validade: Data e hora até quando o cupom pode ser utilizado.
+        uso_maximo: Número máximo de utilizações permitidas.
+        categorias_elegiveis: Categorias às quais o cupom se aplica.
+        usos_realizados: Quantidade de utilizações já contabilizadas.
+    """
     TIPOS_PERMITIDOS = {"VALOR", "PERCENTUAL"}
 
     def __init__(

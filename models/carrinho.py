@@ -3,6 +3,19 @@ from models.produto import Produto
 from models.cliente import Cliente
 
 class Carrinho:
+    
+    """Agrupa os produtos selecionados por um cliente antes do pedido.
+
+    Permite adicionar e remover itens, alterar quantidades, consultar o
+    subtotal e iterar pelos itens. A quantidade solicitada é validada em
+    relação às regras do produto e ao estoque disponível.
+
+    Attributes:
+        cliente: Cliente associado ao carrinho.
+        itens: Itens atualmente selecionados.
+        subtotal: Soma dos subtotais dos itens.
+        total: Total do carrinho antes do fechamento do pedido.
+    """
     def __init__(self, cliente: Cliente):
         self.cliente = cliente
         self._itens = []

@@ -1,4 +1,19 @@
 class Endereco:
+
+    """Representa um endereço associado a um cliente ou a uma entrega.
+
+    Valida e armazena os dados de localização. O endereço de entrega é
+    utilizado pelo pedido para calcular frete e prazo estimado.
+
+    Attributes:
+        logradouro: Rua, avenida ou outro tipo de via.
+        numero: Número do imóvel.
+        complemento: Informação complementar, como apartamento ou bloco.
+        bairro: Bairro do endereço.
+        cidade: Município do endereço.
+        uf: Sigla do estado.
+        cep: CEP armazenado com seus dígitos numéricos.
+    """
     def __init__(self, logradouro, numero, bairro, cidade, uf, cep, complemento=""):
         self.logradouro = logradouro
         self.numero = numero

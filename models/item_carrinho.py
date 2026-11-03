@@ -1,6 +1,18 @@
 from models.produto import Produto
 
 class ItemCarrinho:
+    
+    """Representa um produto e sua quantidade dentro de um carrinho.
+
+    Mantém o produto escolhido, a quantidade solicitada e o preço unitário
+    usado no cálculo do subtotal do item.
+
+    Attributes:
+        produto: Produto associado ao item.
+        quantidade: Número de unidades solicitadas.
+        preco_unitario: Preço unitário usado no carrinho.
+        subtotal: Resultado de preço unitário multiplicado pela quantidade.
+    """
     def __init__(self, produto: Produto, quantidade = 1):
         self.produto = produto
         self.quantidade = quantidade

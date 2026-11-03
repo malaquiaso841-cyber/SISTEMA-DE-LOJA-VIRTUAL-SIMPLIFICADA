@@ -1,11 +1,19 @@
 import json
 import math
 from pathlib import Path
-
 from models.endereco import Endereco
 
-
 class Frete:
+    
+    """Calcula o custo e o prazo estimado de entrega de um pedido físico.
+
+    Lê as regras de frete configuradas em ``settings.json``. Usa a regra
+    específica da UF quando disponível e a regra padrão nos demais casos.
+
+    Attributes:
+        _caminho_configuracao: Caminho do arquivo de configurações usado.
+        _configuracao: Regras de frete carregadas do arquivo.
+    """
     def __init__(self, caminho_configuracao=None):
         if caminho_configuracao is None:
             caminho_configuracao = (

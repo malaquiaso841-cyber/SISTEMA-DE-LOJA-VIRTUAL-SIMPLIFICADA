@@ -1,6 +1,21 @@
 import math
 
 class ItemPedido:
+   
+    """Registra um produto incluído em um pedido.
+
+    Guarda os dados relevantes do produto no momento da compra, incluindo
+    SKU, quantidade, preço unitário, tipo e categoria. O subtotal é
+    calculado a partir do preço e da quantidade registrados.
+
+    Attributes:
+        sku: Código do produto comprado.
+        quantidade: Número de unidades incluídas no pedido.
+        preco_unitario: Preço unitário registrado para a compra.
+        digital: Indica se o produto registrado é digital.
+        categoria: Categoria registrada para relatórios de vendas.
+        subtotal: Resultado de preço unitário multiplicado pela quantidade.
+    """
     def __init__(self, sku: str, quantidade: int, preco_unitario: float, digital: bool = False, categoria: str = "Sem categoria registrada",):
         self.sku = sku
         self.quantidade = quantidade

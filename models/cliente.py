@@ -2,6 +2,20 @@ from models.endereco import Endereco
 import re
 
 class Cliente:
+    
+    """Representa uma pessoa cadastrada como cliente da loja.
+
+    Mantém os dados de identificação e contato e a lista de endereços
+    associados ao cliente. A classe valida os dados e oferece operações
+    para adicionar, remover e consultar endereços.
+
+    Attributes:
+        id_cliente: Identificador do cliente no sistema.
+        nome: Nome do cliente.
+        email: E-mail usado para contato e identificação.
+        cpf: CPF armazenado com seus dígitos numéricos.
+        enderecos: Lista de endereços cadastrados para o cliente.
+    """
     def __init__(self, id_cliente, nome, email, cpf, enderecos=None):
         self.id_cliente = id_cliente
         self.nome = nome

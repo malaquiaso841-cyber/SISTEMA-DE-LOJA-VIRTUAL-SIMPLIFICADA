@@ -13,6 +13,30 @@ from services.configuracao import carregar_configuracoes
 from uuid import uuid4
 
 class Pedido:
+    
+    """Gerencia a compra e seu ciclo de vida dentro da loja.
+
+    É criado a partir de um carrinho e mantém os itens, endereço de
+    entrega, frete, desconto, pagamentos e status. Revalida o estoque ao
+    fechar o pedido, registra o uso do cupom nessa etapa e baixa o estoque
+    quando o pagamento total é confirmado. Também permite transições de
+    status, cancelamento conforme as regras configuradas, estorno de
+    estoque quando aplicável e geração do resumo textual do pedido.
+
+    Attributes:
+        id: Identificador único do pedido.
+        cliente: Cliente responsável pela compra.
+        endereco_entrega: Endereço escolhido para a entrega.
+        itens: Itens registrados no pedido.
+        valor_frete: Valor do frete aplicado ao pedido.
+        valor_desconto: Desconto aplicado ao pedido.
+        prazo_entrega_dias: Prazo estimado, ou ``None`` para pedidos sem frete.
+        status: Estado atual do pedido.
+        codigo_rastreio: Código fictício gerado quando o pedido é enviado.
+        data_criacao: Data e hora de criação do pedido.
+        data_entrega: Data de entrega, preenchida quando aplicável.
+        pagamentos: Pagamentos registrados para quitar o pedido.
+    """
     STATUS_PERMITIDOS = {
         "aguardando_pagamento",
         "pago",
